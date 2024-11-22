@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="ERROR">
+    <!--<Configuration xmlns="https://logging.apache.org/xml/ns"-->
+    <!--               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"-->
+    <!--               xsi:schemaLocation="-->
+    <!--                   https://logging.apache.org/xml/ns-->
+    <!--                   https://logging.apache.org/xml/ns/log4j-config-2.xsd">-->
+
+    <Properties>
+        <Property name="LOG"
+                  value="%-5p %d{yyyy-MM-dd HH:mm:ss, SSS} %c{1.}.%M (%F:%L): %msg%n"/>
+        <Property name="LOG_COLOR"
+                  value="%highlight{${sys:LOG}}{FATAL=red blink, ERROR=red bold, WARN=yellow, INFO=green,
+                  DEBUG=cyan, TRACE=magenta}"/>
+    </Properties>
+
+    <Appenders>
+        <Console name="ColorConsole" target="SYSTEM_OUT">
+            <PatternLayout pattern="${sys:LOG_COLOR}"/>
+            <!-- <PatternLayout pattern="%d %-5p [%t] %C{2} (%F:%L) - %m%n"/> -->
+            <!-- Можно использовать этот вариант -->
+        </Console>
+
+        <!-- .%d{yyyy-MM-dd} - благодаря этому паттерну по истечении каждого дня будет создаваться архивный файл с именем -->
+        <!-- hippodrome.2024-11-19.log -->
+        <RollingFile name="RollingFile" fileName="logs/hippodrome.log"
+                     filePattern="logs/hippodrome.%d{yyyy-MM-dd}.log">
+            ignoreExceptions="false">
+            <!-- Формат выводимой строки (лога), где: %d - дата и время; %-5p - уровень логирования и количество символов; -->
+            <!-- если символов менее 5 (например, info), то будут выведен один пробел; %c - имя класса; %m - выводимое сообщение; -->
+            <!-- %n - переход на новую строку -->
+            <PatternLayout pattern="%d %-5p %c: %m%n"/>
+            <!-- Данный тег отвечает за создание файла -->
+            <TimeBasedTriggeringPolicy />
+            <DefaultRolloverStrategy>
+                <Delete basePath="logs" maxDepth="2">
+                    <IfFileName glob="hippodrome.*.log"/>
+                    <IfLastModified age="7d"/>
+                    <!-- Все файлы, которые достигли хранения 7 дней, с указанными именами и указанной директорией, удаляются -->
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Root level="ALL">
+            <AppenderRef ref="ColorConsole" level="ALL"/>
+            <AppenderRef ref="RollingFile" level="DEBUG"/>
+        </Root>
+    </Loggers>
+</Configuration>
